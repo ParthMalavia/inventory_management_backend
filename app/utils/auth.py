@@ -3,12 +3,16 @@ from typing import Union
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
+from app.models import user as models
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+from app.schemas import user as schemas
 
 # from app.models.user import User
 from app.config import settings
 
 # OAuth2 token handler
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -51,3 +55,15 @@ def decode_access_token(token: str):
         return payload
     except JWTError:
         return None
+
+
+def user_login(user: schemas.UserLogin, db: Session):
+    db_user = db.query(models.User).filter(models.User.username == user.username).first()
+    
+    if not db_user or not verify_password(
+        user.password, db_user.password_hash
+    ):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    access_token = create_access_token({"sub": db_user.username})
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -9,6 +9,11 @@ class UserBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
 class UserCreate(UserBase):
     password: str  # For user registration, password is required
 

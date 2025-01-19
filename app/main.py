@@ -1,7 +1,13 @@
 from fastapi import FastAPI
 from app.routes import inventory, user, orders, auth
+from app.models.user import Base
+from app.db.session import engine
+
 
 app = FastAPI(title="Auto Parts Inventory Management")
+
+# Create tables in the database
+Base.metadata.create_all(bind=engine)
 
 # Include routers
 # app.include_router(inventory.router, prefix="/inventory", tags=["Inventory"])
