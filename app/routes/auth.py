@@ -15,7 +15,9 @@ router = APIRouter()
 async def register_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
     # Check if user already exists
     db_user = (
-        db.query(user_model.User).filter(user_model.User.username == user.username).first()
+        db.query(user_model.User)
+        .filter(user_model.User.username == user.username)
+        .first()
     )
     if db_user:
         raise HTTPException(status_code=400, detail="Username already taken")
@@ -37,9 +39,8 @@ async def register_user(user: user_schema.UserCreate, db: Session = Depends(get_
 # Generate JWT token
 @router.post("/token")
 async def token(
-        formdata: OAuth2PasswordRequestForm = Depends(),
-        db: Session = Depends(get_db)
-    ):
+    formdata: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
     user = user_schema.UserLogin(username=formdata.username, password=formdata.password)
     return user_login(user, db)
 
@@ -53,7 +54,7 @@ async def login(user: user_schema.UserLogin, db: Session = Depends(get_db)):
 # Get logged-in user's details
 @router.get("/me", response_model=user_schema.UserResponse)
 async def get_me(
-    current_user = Depends(auth_controller.get_current_user),
+    current_user=Depends(auth_controller.get_current_user),
 ):
     return current_user
 
