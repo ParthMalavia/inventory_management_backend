@@ -9,7 +9,7 @@ from app.db.session import get_db
 # TODO: REMOVE: from app.utils.auth import get_current_user  # Assuming this exists for auth
 from app.controllers.auth import get_current_user
 
-router = APIRouter(prefix="/inventory", tags=["Inventory"])
+router = APIRouter()
 
 @router.post("/", response_model=Inventory)
 def create_inventory(
@@ -17,7 +17,10 @@ def create_inventory(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    return inventory_controller.create_inventory(db, item)
+    try:
+        return inventory_controller.create_inventory(db, item)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/", response_model=List[Inventory])
 def get_inventory(
@@ -46,10 +49,13 @@ def update_inventory(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    updated_item = inventory_controller.update_inventory(db, part_number, item)
-    if not updated_item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return updated_item
+    try:
+        updated_item = inventory_controller.update_inventory(db, part_number, item)
+        if not updated_item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return updated_item
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.patch("/{part_number}/quantity", response_model=Inventory)
 def update_quantity(

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from app.schemas.category import Category
 
 # Base schema for common fields
 class InventoryBase(BaseModel):
@@ -10,6 +11,7 @@ class InventoryBase(BaseModel):
     quantity: int
     price: float
     low_stock_threshold: Optional[int] = 10
+    category_id: int  # Required field linking to category
 
 # Schema for creating a new item
 class InventoryCreate(InventoryBase):
@@ -22,6 +24,7 @@ class InventoryUpdate(BaseModel):
     quantity: Optional[int] = None
     price: Optional[float] = None
     low_stock_threshold: Optional[int] = None
+    category_id: Optional[int] = None
 
 # Schema for quantity-specific updates
 class InventoryQuantityUpdate(BaseModel):
@@ -32,6 +35,7 @@ class Inventory(InventoryBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    category: Optional[Category] = None  # Optional: Include category details in response
 
     class Config:
-        orm_mode = True  # Enables SQLAlchemy ORM compatibility
+        orm_mode = True
