@@ -6,7 +6,7 @@ from app.schemas.category import Category, CategoryCreate, CategoryUpdate
 from app.db.session import get_db
 from app.controllers.auth import get_current_user
 
-router = APIRouter(prefix="/categories", tags=["Categories"])
+router = APIRouter()
 
 @router.post("/", response_model=Category)
 def create_category(
