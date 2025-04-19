@@ -1,8 +1,8 @@
-"""Initial migration with User, Inventory, and Category tables
+"""Init
 
-Revision ID: fb139e73e35d
-Revises: cac53ece8dc9
-Create Date: 2025-02-23 23:44:01.288727
+Revision ID: 65dd27de8741
+Revises: 
+Create Date: 2025-04-16 11:41:31.149644
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fb139e73e35d'
-down_revision: Union[str, None] = 'cac53ece8dc9'
+revision: str = '65dd27de8741'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -30,6 +30,18 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_categories_id'), 'categories', ['id'], unique=False)
     op.create_index(op.f('ix_categories_name'), 'categories', ['name'], unique=True)
+    op.create_table('suppliers',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=100), nullable=False),
+    sa.Column('contact_person', sa.String(length=100), nullable=True),
+    sa.Column('phone', sa.String(length=20), nullable=True),
+    sa.Column('email', sa.String(length=100), nullable=True),
+    sa.Column('address', sa.Text(), nullable=True),
+    sa.Column('notes', sa.Text(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_suppliers_id'), 'suppliers', ['id'], unique=False)
+    op.create_index(op.f('ix_suppliers_name'), 'suppliers', ['name'], unique=True)
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(), nullable=True),
@@ -69,6 +81,9 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_users_username'), table_name='users')
     op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_table('users')
+    op.drop_index(op.f('ix_suppliers_name'), table_name='suppliers')
+    op.drop_index(op.f('ix_suppliers_id'), table_name='suppliers')
+    op.drop_table('suppliers')
     op.drop_index(op.f('ix_categories_name'), table_name='categories')
     op.drop_index(op.f('ix_categories_id'), table_name='categories')
     op.drop_table('categories')

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import inventory, user, orders, auth, category
+from app.routes import inventory, user, orders, auth, category, supplier
 from app.models.user import Base
 from app.db.session import engine
 
@@ -15,6 +15,7 @@ app.include_router(inventory.router, prefix="/inventory", tags=["Inventory"])
 app.include_router(user.router, prefix="/users", tags=["Users"])
 # app.include_router(orders.router, prefix="/orders", tags=["Orders"])
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
+app.include_router(supplier.router, prefix="/suppliers", tags=["Suppliers"])
 
 
 @app.get("/")
