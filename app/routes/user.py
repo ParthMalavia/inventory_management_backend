@@ -10,14 +10,21 @@ router = APIRouter()
 
 # Get all users
 @router.get("/users", response_model=list[user_schema.UserResponse])
-async def get_all_users(db: Session = Depends(get_db)):
+async def get_all_users(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     users = db.query(user_model.User).all()
     return users
 
 
 # Get user by ID
 @router.get("/users/{user_id}", response_model=user_schema.UserResponse)
-async def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
+async def get_user_by_id(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
     user = db.query(user_model.User).filter(user_model.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
