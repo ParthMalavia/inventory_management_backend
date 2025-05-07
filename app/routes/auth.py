@@ -61,6 +61,8 @@ async def get_me(
 
 # Logout (invalidate JWT on client side)
 @router.post("/logout")
-async def logout():
+async def logout(
+    current_user=Depends(auth_controller.get_current_user),
+):
     # Log out by just deleting the token on the client side
     return {"message": "Logged out successfully"}
