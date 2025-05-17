@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.order import Order, OrderItem, OrderStatus
@@ -6,6 +6,8 @@ from app.models.customer import Customer
 from app.models.inventory import Inventory
 from app.schemas.order import OrderCreate, OrderResponse, OrderUpdate
 from app.controllers.auth import get_current_user
+from app.utils.email import send_order_confirmation_email
+from app.config import settings
 
 router = APIRouter()
 
@@ -37,6 +39,7 @@ def get_orders_by_status(
 @router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
 def create_order(
     order_data: OrderCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
@@ -48,6 +51,8 @@ def create_order(
     db.add(order)
     db.commit()
     db.refresh(order)
+    total_price = 0
+    item_details = []
 
     for item in order_data.items:
         inventory_item = (
@@ -63,12 +68,32 @@ def create_order(
                 detail=f"Not enough stock for {inventory_item.part_number}",
             )
         inventory_item.quantity -= item.quantity
+        total_price += inventory_item.price * item.quantity
+        item_details.append(
+            {
+                "name": inventory_item.name,
+                "quantity": item.quantity,
+                "price": inventory_item.price,
+            }
+        )
 
         db_item = OrderItem(order_id=order.id, **item.model_dump())
         db.add(db_item)
 
     db.commit()
     db.refresh(order)
+
+    if settings.EMAIL_FLAG:
+        # Send email in background
+        background_tasks.add_task(
+            send_order_confirmation_email,
+            customer.email,
+            customer.name,
+            order.id,
+            item_details,
+            total_price,
+        )
+
     return order
 
 

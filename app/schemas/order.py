@@ -3,25 +3,31 @@ from typing import List, Optional
 from datetime import datetime
 from app.utils.enums import OrderStatus
 
+
 class OrderItemBase(BaseModel):
     inventory_id: int
     quantity: int
 
+
 class OrderItemCreate(OrderItemBase):
     pass
+
 
 class OrderItemResponse(OrderItemBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
 
 class OrderCreate(BaseModel):
     customer_id: int
     items: List[OrderItemCreate]
 
+
 class OrderUpdate(BaseModel):
     status: Optional[OrderStatus] = None
+
 
 class OrderResponse(BaseModel):
     id: int
@@ -31,4 +37,4 @@ class OrderResponse(BaseModel):
     items: List[OrderItemResponse]
 
     class Config:
-        orm_mode = True
+        from_attributes = True

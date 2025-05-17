@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, LargeBinary, Enum
 
-# from sqlalchemy.orm import relationship
 from app.db.session import Base
+from app.utils.enums import UserRole
 
 
 class User(Base):
@@ -9,6 +9,6 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
-    password_hash = Column(String)
+    password_hash = Column(LargeBinary)
     is_active = Column(Boolean, default=True)
-    role = Column(String, default="staff")  # 'admin', 'manager', 'staff'
+    role = Column(Enum(UserRole), default=UserRole.staff)

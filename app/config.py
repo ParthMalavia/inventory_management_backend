@@ -15,6 +15,13 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "password")
     DB_NAME: str = os.getenv("DB_NAME", "inventory")
 
+    # Email settings
+    EMAIL_FLAG: bool = os.getenv("EMAIL_FLAG", "False") == "True"
+    EMAIL_SENDER: str = os.getenv("EMAIL_SENDER")
+    EMAIL_PASSWORD: str = os.getenv("EMAIL_PASSWORD")
+    EMAIL_SERVER: str = os.getenv("EMAIL_SERVER", "smtp.gmail.com")
+    EMAIL_PORT: int = int(os.getenv("EMAIL_PORT", 587))
+
     # class Config:
     #     env_file = ".env"
 
