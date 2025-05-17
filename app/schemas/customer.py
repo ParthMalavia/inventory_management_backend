@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
+
 class CustomerBase(BaseModel):
     name: str
     email: Optional[EmailStr] = None
@@ -8,14 +9,17 @@ class CustomerBase(BaseModel):
     address: Optional[str] = None
     notes: Optional[str] = None
 
+
 class CustomerCreate(CustomerBase):
     pass
 
+
 class CustomerUpdate(CustomerBase):
     pass
+
 
 class CustomerResponse(CustomerBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

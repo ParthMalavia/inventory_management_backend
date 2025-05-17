@@ -7,6 +7,7 @@ from app.models.inventory import Inventory
 from app.schemas.order import OrderCreate, OrderResponse, OrderUpdate
 from app.controllers.auth import get_current_user
 from app.utils.email import send_order_confirmation_email
+from app.config import settings
 
 router = APIRouter()
 
@@ -68,28 +69,30 @@ def create_order(
             )
         inventory_item.quantity -= item.quantity
         total_price += inventory_item.price * item.quantity
-        item_details.append({
-            "name": inventory_item.name,
-            "quantity": item.quantity,
-            "price": inventory_item.price
-        })
+        item_details.append(
+            {
+                "name": inventory_item.name,
+                "quantity": item.quantity,
+                "price": inventory_item.price,
+            }
+        )
 
         db_item = OrderItem(order_id=order.id, **item.model_dump())
         db.add(db_item)
 
     db.commit()
     db.refresh(order)
-    
-    
-    # Send email in background
-    background_tasks.add_task(
-        send_order_confirmation_email,
-        customer.email,
-        customer.name,
-        order.id,
-        item_details,
-        total_price
-    )
+
+    if settings.EMAIL_FLAG:
+        # Send email in background
+        background_tasks.add_task(
+            send_order_confirmation_email,
+            customer.email,
+            customer.name,
+            order.id,
+            item_details,
+            total_price,
+        )
 
     return order
 

@@ -1,12 +1,13 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
+from app.utils.enums import UserRole
 
 
 class UserBase(BaseModel):
-    username: str
-    role: str
-
     model_config = ConfigDict(from_attributes=True)
+
+    username: str
+    role: UserRole = UserRole.staff
 
 
 class UserLogin(BaseModel):
@@ -23,10 +24,10 @@ class UserResponse(UserBase):
     is_active: bool
 
     class Config:
-        orm_mode = True  # To serialize SQLAlchemy models to Pydantic models
+        from_attributes = True  # To serialize SQLAlchemy models to Pydantic models
 
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    role: Optional[str] = None
+    role: Optional[UserRole] = None
     is_active: Optional[bool] = None
